@@ -1,0 +1,37 @@
+{
+  "name": "cloudflare-image-proxy-worker",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "build": "tsc",
+    "cf:upload": "node ./dist/scripts/upload.js",
+    "cf:bulkuploadURL": "node ./dist/scripts/uploadUrls.js",
+    "cf:bulkuploadFile": "node ./dist/scripts/uploadFiles.js",
+    "cdn:download": "node ./dist/scripts/downloadFiles.js",
+    "cf:reset": "node ./dist/scripts/reset.js",
+    "lint": "eslint --ext .ts . --fix"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.22.15",
+    "@cloudflare/workers-types": "^4.20230419.0",
+    "@types/node": "^20.8.9",
+    "@types/yargs": "^17.0.29",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "eslint": "^8.52.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "prettier": "^3.0.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4",
+    "wrangler": "^3.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "p-limit": "^4.0.0",
+    "yargs": "^17.7.2"
+  }
+}
