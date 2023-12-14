@@ -17,7 +17,7 @@ const outDir = path.join(cwd, 'output');
 
 createOutputDir(outDir);
 
-const totalDownloads = data.length;
+const totalDownloads = (data as string[]).length;
 
 console.log(`Batch downloading ${totalDownloads} images`);
 
@@ -26,7 +26,7 @@ async function main() {
 	const promises = [];
 
 	for (let i = 0; i < totalDownloads; i++) {
-		const cdnURL = data[i];
+		const cdnURL = (data as string[])[i];
 		const { url, imageName } = extractVariant(cdnURL);
 
 		if (url) {
@@ -50,7 +50,7 @@ async function download(url: string, fileName: string, path: string) {
 	} catch (e: any) {
 		console.log(e.toString(), 'url: ', url, 'path: ', fileName);
 		failedUrls.push(url);
-		writeFileSync('./data/failedUrls.json', JSON.stringify(failedUrls, null, 2));
+		writeFileSync('./data/failedDownloadCDNUrls.json', JSON.stringify(failedUrls, null, 2));
 	}
 }
 

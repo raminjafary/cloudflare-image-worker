@@ -1,5 +1,6 @@
 import { createInterface } from 'node:readline';
-import { rmdirSync, existsSync, mkdirSync } from 'node:fs';
+import { rmdirSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import path from 'node:path';
 
 export function readLineAsync(message: string) {
 	const rl = createInterface(process.stdin, process.stdout);
@@ -24,4 +25,21 @@ export function createOutputDir(outDir: string) {
 	}
 	mkdirSync(outDir);
 	console.log(`✔️  Created ${outDir} directory`);
+}
+
+export function getFilesThroughDir(dir: string) {
+	const files: string[] = [];
+	try {
+		readdirSync(dir).forEach((file) => {
+			const absPath = path.join(dir, file);
+			if (statSync(absPath).isDirectory()) {
+				return getFilesThroughDir(absPath);
+			} else {
+				return files.push(absPath);
+			}
+		});
+		return files;
+	} catch (error) {
+		exit('Please specify an directory for uploading images!');
+	}
 }

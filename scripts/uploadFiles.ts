@@ -1,25 +1,11 @@
 import pLimit from 'p-limit';
-import { exit, readLineAsync } from './utils.js';
+import { exit, getFilesThroughDir, readLineAsync } from './utils.js';
 import config from '../src/config.js';
-import { readFileSync, readdirSync, statSync } from 'fs';
-import path, { basename } from 'path';
+import { readFileSync, writeFileSync } from 'fs';
+import { basename } from 'path';
 
-const files: string[] = [];
-
-function getFilesThroughDir(dir: string) {
-	try {
-		readdirSync(dir).forEach((file) => {
-			const absPath = path.join(dir, file);
-			if (statSync(absPath).isDirectory()) {
-				return getFilesThroughDir(absPath);
-			} else {
-				return files.push(absPath);
-			}
-		});
-	} catch (error) {
-		exit('Please specify an directory for uploading images!');
-	}
-}
+let files: string[] = [];
+const failedUrls: string[] = [];
 
 async function bulkUpload() {
 	if (!config.accountID || !config.apiToken) {
@@ -59,11 +45,12 @@ async function upload(file: Buffer, imageName: string, accountID: string, apiTok
 		});
 
 		if (res.status !== 200 && res.status !== 409) {
+			failedUrls.push(imageName);
+			writeFileSync('./data/failedUploadCDNFiles.json', JSON.stringify(failedUrls, null, 2));
 			throw new Error('HTTP ' + res.status + ' : ' + (await res.text(), file));
 		}
 
 		if (res.status === 409) {
-			// 409: image already exists, it must have been imported by a previous run
 			console.log('Already exist: ' + imageName);
 		}
 	} catch (e) {
@@ -71,5 +58,8 @@ async function upload(file: Buffer, imageName: string, accountID: string, apiTok
 	}
 }
 
-getFilesThroughDir('./output');
-bulkUpload();
+files = getFilesThroughDir('./output') ?? [];
+
+if (files.length) {
+	bulkUpload();
+}

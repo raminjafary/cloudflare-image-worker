@@ -3,6 +3,9 @@ import { exit, readLineAsync } from './utils.js';
 import imagesData from '../data/urls.json' assert { type: 'json' };
 import config from '../src/config.js';
 import { extractVariant } from '../src/extractVariant.js';
+import { writeFileSync } from 'node:fs';
+
+const failedUrls: string[] = [];
 
 async function bulkUpload() {
 	if (!config.accountID || !config.apiToken) {
@@ -17,7 +20,7 @@ async function bulkUpload() {
 	const parallel_limit = pLimit(10);
 	const promises = [];
 
-	for (const sourceUrl of imagesData) {
+	for (const sourceUrl of imagesData as string[]) {
 		const { imageName, url } = extractVariant(sourceUrl);
 
 		promises.push(parallel_limit(() => upload(url, imageName, config.accountID, config.apiToken)));
@@ -42,11 +45,12 @@ async function upload(sourceUrl: string, imageName: string, accountID: string, a
 		});
 
 		if (res.status !== 200 && res.status !== 409) {
+			failedUrls.push(sourceUrl);
+			writeFileSync('./data/failedUploadCDNUrls.json', JSON.stringify(failedUrls, null, 2));
 			throw new Error('HTTP ' + res.status + ' : ' + (await res.text(), sourceUrl));
 		}
 
 		if (res.status === 409) {
-			// 409: image already exists, it must have been imported by a previous run
 			console.log('Already exist: ' + imageName);
 		}
 	} catch (e) {

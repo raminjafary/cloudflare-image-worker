@@ -17,7 +17,7 @@ async function reset() {
 	const parallel_limit = pLimit(10);
 	const promises = [];
 
-	for (const sourceUrl of imagesData) {
+	for (const sourceUrl of imagesData as string[]) {
 		const { imageName } = extractVariant(sourceUrl);
 
 		promises.push(parallel_limit(() => deleteImage(imageName, config.accountID, config.apiToken)));
