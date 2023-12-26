@@ -25,5 +25,5 @@ export function extractVariant(url: string) {
 }
 
 function isValidImageName(filename: string) {
-	return ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(filename.split('.').pop() ?? '');
+	return ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(filename.split('.').pop()?.toLocaleLowerCase() ?? '');
 }
